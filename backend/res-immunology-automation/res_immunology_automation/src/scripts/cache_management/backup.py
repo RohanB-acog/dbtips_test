@@ -27,7 +27,7 @@ from db.models import Disease, DiseasesDossierStatus
 
 
 async def populate_database_from_cache():
-    """Populate database with diseases from cached JSON files."""
+    """Populate database with diseases from cached JSON files, setting status to 'processed'."""
     logger = setup_logging("populate_db")
     
     if not os.path.exists(DISEASE_CACHE_DIR):
@@ -53,14 +53,16 @@ async def populate_database_from_cache():
                 file_path = os.path.join(DISEASE_CACHE_DIR, f"{disease_id}.json")
                 disease = Disease(id=disease_id, file_path=file_path)
                 db.add(disease)
+                # Set status to 'processed' 
                 status = DiseasesDossierStatus(
                     id=disease_id,
-                    status="submitted",
-                    submission_time=datetime.utcnow()
+                    status="processed",  # 'processed'
+                    submission_time=datetime.utcnow(),
+                    processed_time=datetime.utcnow()  # Add processed_time as we're setting status to processed
                 )
                 db.add(status)
             await db.commit()
-            logger.info("Database population completed successfully.")
+            logger.info("Database population completed successfully with 'processed' status.")
             return True
             
     except Exception as e:
@@ -108,7 +110,7 @@ async def backup_and_populate_db():
                 destination = os.path.join(logs_backup_dir, log_file)
                 shutil.copy2(source, destination)
         
-        # Populate database from cache
+        # Populate database from cache, setting status to 'processed'
         db_result = await populate_database_from_cache()
         if not db_result:
             logger.error("Failed to populate database from cache.")

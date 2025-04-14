@@ -6,7 +6,7 @@ import os
 import asyncio
 import json
 import sys
-from sqlalchemy import select
+from sqlalchemy import select, update
 from .utils import (
     setup_logging,
     DISEASE_CACHE_DIR,
@@ -15,11 +15,13 @@ from .utils import (
 
 # Import database models
 sys.path.append(BASE_DIR)
-from build_dossier import SessionLocal, DiseasesDossierStatus
+from build_dossier import SessionLocal
+from db.models import DiseasesDossierStatus
+from graphrag_service import get_redis
 
 
 async def create_empty_disease_files():
-    """Create empty JSON files for all diseases in the database."""
+    """Create empty JSON files for all diseases in the database while preserving their status."""
     logger = setup_logging("create_empty_files")
     
     # Ensure cache directory exists
@@ -42,6 +44,9 @@ async def create_empty_disease_files():
                     json.dump({}, f)
                 logger.info(f"Created empty file: {file_path}")
             
+            # Note: We're not changing any database statuses in this function
+            # This preserves the existing statuses (like "processed")
+            
             return True
             
     except Exception as e:
@@ -49,8 +54,27 @@ async def create_empty_disease_files():
         return False
 
 
+async def clear_redis_cache():
+    """Clear all data from Redis cache."""
+    logger = setup_logging("clear_redis")
+    
+    try:
+        # Get Redis connection
+        redis = get_redis()
+        logger.info("Connected to Redis successfully")
+        
+        # Flush all data from Redis - using non-async call
+        redis.flushall()
+        logger.info("Successfully cleared all data from Redis cache")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error clearing Redis cache: {str(e)}")
+        return False
+
+
 async def clear_and_create_empty_files():
-    """Clear cache directory and create empty JSON files for all diseases."""
+    """Clear cache directory, Redis cache, and create empty JSON files for all diseases while preserving statuses."""
     logger = setup_logging("clear_cache")
     logger.info("Starting cache clearing and empty file creation...")
     
@@ -71,7 +95,14 @@ async def clear_and_create_empty_files():
         
         logger.info(f"Removed {files_removed} JSON files from cache directory.")
         
-        # Create empty files for all diseases in database
+        # Clear Redis cache
+        logger.info("Clearing Redis cache...")
+        redis_result = await clear_redis_cache()
+        if not redis_result:
+            logger.error("Failed to clear Redis cache.")
+            return False
+        
+        # Create empty files for all diseases in database while preserving statuses
         result = await create_empty_disease_files()
         if not result:
             logger.error("Failed to create empty disease files.")

@@ -1,22 +1,22 @@
 services:
-  # web:
-  #   container_name: 'dbtips-coe'
-  #   build:
-  #     context: frontend
-  #     dockerfile: Dockerfile
-  #     args:
-  #       - VITE_API_URI=${VITE_API_URI}
-  #       - VITE_TARGET_DOSSIER_URI=${VITE_TARGET_DOSSIER_URI}
-  #   restart: always
+  web:
+    container_name: 'dbtips-coe'
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URI=${VITE_API_URI}
+        - VITE_TARGET_DOSSIER_URI=${VITE_TARGET_DOSSIER_URI}
+    restart: always
 
-  # target-dossier-frontend:
-  #   container_name: 'dbtips-coe-target-dossier'
-  #   build:
-  #     context: ./target-dossier-frontend/frontend
-  #     dockerfile: Dockerfile
-  #     args:
-  #       - VITE_API_URI=${VITE_API_URI}
-  #   restart: always
+  target-dossier-frontend:
+    container_name: 'dbtips-coe-target-dossier'
+    build:
+      context: ./target-dossier-frontend/frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URI=${VITE_API_URI}
+    restart: always
 
   # web:
   #   container_name: 'dev-target-dossier-llm'
@@ -80,57 +80,57 @@ services:
         condition: service_healthy
 
 
-  # backend-llm:
-  #   container_name: 'dbtips-coe-disease-dossier-foundation-backend-llm'
-  #   build:
-  #     context: disease-dossier-backend-llm/backend-llm
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   volumes:
-  #     - ./disease-dossier-backend-llm/backend-llm/static:/app/static
-  #   environment:
-  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
-  #     - REDIS_HOST=redis-llm
-  #     - REDIS_PORT=6379
-  #     - PERPLEXITY_KEY=${PERPLEXITY_KEY}
-  #     - AACT_DB_NAME=${AACT_DB_NAME}
-  #     - AACT_DB_USER=${AACT_DB_USER}
-  #     - AACT_DB_PASSWORD=${AACT_DB_PASSWORD}
-  #     - AACT_DB_HOST=${AACT_DB_HOST}
-  #     - AACT_DB_PORT=${AACT_DB_PORT}
+  backend-llm:
+    container_name: 'dbtips-coe-disease-dossier-foundation-backend-llm'
+    build:
+      context: disease-dossier-backend-llm/backend-llm
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./disease-dossier-backend-llm/backend-llm/static:/app/static
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_HOST=redis-llm
+      - REDIS_PORT=6379
+      - PERPLEXITY_KEY=${PERPLEXITY_KEY}
+      - AACT_DB_NAME=${AACT_DB_NAME}
+      - AACT_DB_USER=${AACT_DB_USER}
+      - AACT_DB_PASSWORD=${AACT_DB_PASSWORD}
+      - AACT_DB_HOST=${AACT_DB_HOST}
+      - AACT_DB_PORT=${AACT_DB_PORT}
 
-  # redis-llm:
-  #   image: redis:latest
-  #   container_name: 'dbtips-coe-disease-dossier-chatbot-redis-llm'
-  #   restart: always
-  #   volumes:
-  #     - ./disease-dossier-backend-llm/backend-llm/redis/redis-data:/data
+  redis-llm:
+    image: redis:latest
+    container_name: 'dbtips-coe-disease-dossier-chatbot-redis-llm'
+    restart: always
+    volumes:
+      - ./disease-dossier-backend-llm/backend-llm/redis/redis-data:/data
 
-  # target-dossier-backend-llm:
-  #   container_name: 'dbtips-coe-target-dossier-foundation-backend-llm'
-  #   build:
-  #     context: backend-llm
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   volumes:
-  #     - ./backend-llm/static:/app/static
-  #   environment:
-  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
-  #     - REDIS_HOST=target-dossier-redis-llm
-  #     - REDIS_PORT=6379
-  #     - PERPLEXITY_KEY=${PERPLEXITY_KEY}
-  #     - AACT_DB_NAME=${AACT_DB_NAME}
-  #     - AACT_DB_USER=${AACT_DB_USER}
-  #     - AACT_DB_PASSWORD=${AACT_DB_PASSWORD}
-  #     - AACT_DB_HOST=${AACT_DB_HOST}
-  #     - AACT_DB_PORT=${AACT_DB_PORT}
+  target-dossier-backend-llm:
+    container_name: 'dbtips-coe-target-dossier-foundation-backend-llm'
+    build:
+      context: backend-llm
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./backend-llm/static:/app/static
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_HOST=target-dossier-redis-llm
+      - REDIS_PORT=6379
+      - PERPLEXITY_KEY=${PERPLEXITY_KEY}
+      - AACT_DB_NAME=${AACT_DB_NAME}
+      - AACT_DB_USER=${AACT_DB_USER}
+      - AACT_DB_PASSWORD=${AACT_DB_PASSWORD}
+      - AACT_DB_HOST=${AACT_DB_HOST}
+      - AACT_DB_PORT=${AACT_DB_PORT}
 
-  # target-dossier-redis-llm:
-  #   image: redis:latest
-  #   container_name: 'target-coe-dossier-chatbot-redis-llm'
-  #   restart: always
-  #   volumes:
-  #     - ./backend-llm/redis/redis-data:/data
+  target-dossier-redis-llm:
+    image: redis:latest
+    container_name: 'target-coe-dossier-chatbot-redis-llm'
+    restart: always
+    volumes:
+      - ./backend-llm/redis/redis-data:/data
 
   redis:
     container_name: 'dbtips-coe-dossier-foundation-redis'
