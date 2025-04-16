@@ -176,3 +176,5 @@ pgadmin/
 backend/res-immunology-automation/res_immunology_automation/src/scripts/cached_data_json/
 
 backup/
+
+backend-llm/
